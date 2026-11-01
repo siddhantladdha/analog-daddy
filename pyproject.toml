@@ -44,6 +44,7 @@ analog_daddy = "analog_daddy.cli:app"
 [dependency-groups]
 dev = [
   "format-docstring",
+  "hypothesis",
   "pytest",
   "ruff",
   "ty",
