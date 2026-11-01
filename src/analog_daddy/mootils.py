@@ -38,8 +38,8 @@ def format_mapping_num_to_si(df: pl.DataFrame) -> dict[str, Callable]:
 
     References
     ----------
-    - `marimo#9663 <https://github.com/marimo-team/marimo/issues/9663>`_
-    - `marimo#7568 <https://github.com/marimo-team/marimo/issues/7568>`_
+    - [marimo#9663](https://github.com/marimo-team/marimo/issues/9663)
+    - [marimo#7568](https://github.com/marimo-team/marimo/issues/7568)
     """
     return dict.fromkeys(cs.expand_selector(df, cs.numeric()), render)
 

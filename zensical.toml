@@ -11,6 +11,9 @@ nav = [
   { "API Reference" = "api" },
 ]
 
+[project.theme]
+features = ["content.code.copy"]
+
 [[project.theme.palette]]
 media = "(prefers-color-scheme: dark)"
 scheme = "slate"
