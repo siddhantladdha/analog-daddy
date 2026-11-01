@@ -22,15 +22,36 @@ def drop_all_null(df: pl.DataFrame) -> pl.DataFrame:
 
     Examples
     --------
-    >>> df = pl.DataFrame(
-    ...     {
-    ...         "a": [None, None, None],
-    ...         "b": [1, 2, None],
-    ...         "c": ["x", "y", ""],
-    ...     }
+    >>> (
+    ...     df := pl.DataFrame(
+    ...         {
+    ...             "a": [None, None, None],
+    ...             "b": [1, 2, None],
+    ...             "c": ["x", "y", ""],
+    ...         }
+    ...     )
     ... )
-    >>> drop_all_null(df).columns
-    ['b', 'c']
+    shape: (3, 3)
+    ┌──────┬──────┬─────┐
+    │ a    ┆ b    ┆ c   │
+    │ ---  ┆ ---  ┆ --- │
+    │ null ┆ i64  ┆ str │
+    ╞══════╪══════╪═════╡
+    │ null ┆ 1    ┆ x   │
+    │ null ┆ 2    ┆ y   │
+    │ null ┆ null ┆     │
+    └──────┴──────┴─────┘
+    >>> drop_all_null(df)
+    shape: (3, 2)
+    ┌──────┬─────┐
+    │ b    ┆ c   │
+    │ ---  ┆ --- │
+    │ i64  ┆ str │
+    ╞══════╪═════╡
+    │ 1    ┆ x   │
+    │ 2    ┆ y   │
+    │ null ┆     │
+    └──────┴─────┘
     """
     return df[[ser.name for ser in df if ser.null_count() != df.height]]
 
@@ -51,12 +72,24 @@ def filter_all_null(df: pl.DataFrame) -> pl.DataFrame:
 
     Examples
     --------
-    >>> df = pl.DataFrame(
-    ...     {
-    ...         "a": [1, None, 3],
-    ...         "b": ["x", None, None],
-    ...     }
+    >>> (
+    ...     df := pl.DataFrame(
+    ...         {
+    ...             "a": [1, None, 3],
+    ...             "b": ["x", None, None],
+    ...         }
+    ...     )
     ... )
+    shape: (3, 2)
+    ┌──────┬──────┐
+    │ a    ┆ b    │
+    │ ---  ┆ ---  │
+    │ i64  ┆ str  │
+    ╞══════╪══════╡
+    │ 1    ┆ x    │
+    │ null ┆ null │
+    │ 3    ┆ null │
+    └──────┴──────┘
     >>> filter_all_null(df)
     shape: (2, 2)
     ┌─────┬──────┐
@@ -110,17 +143,30 @@ def scan_nested_params(
 
     Examples
     --------
-    >>> df = pl.DataFrame(
-    ...     {
-    ...         "Point": [
-    ...             "Parameters: var1=-12k, var_b=1n",
-    ...             "1",
-    ...             "Parameters: var3=-12k",
-    ...             "2",
-    ...         ],
-    ...         "Value": [None, 10, 1, None],
-    ...     }
+    >>> (
+    ...     df := pl.DataFrame(
+    ...         {
+    ...             "Point": [
+    ...                 "Parameters: var1=-12k, var_b=1n",
+    ...                 "1",
+    ...                 "Parameters: var3=-12k",
+    ...                 "2",
+    ...             ],
+    ...             "Value": [None, 10, 1, None],
+    ...         }
+    ...     )
     ... )
+    shape: (4, 2)
+    ┌─────────────────────────────────┬───────┐
+    │ Point                           ┆ Value │
+    │ ---                             ┆ ---   │
+    │ str                             ┆ i64   │
+    ╞═════════════════════════════════╪═══════╡
+    │ Parameters: var1=-12k, var_b=1… ┆ null  │
+    │ 1                               ┆ 10    │
+    │ Parameters: var3=-12k           ┆ 1     │
+    │ 2                               ┆ null  │
+    └─────────────────────────────────┴───────┘
     >>> scan_nested_params(df, scan_col="Point")
     ['var1', 'var_b']
     """
@@ -169,12 +215,24 @@ def explode_nested_params(
 
     Examples
     --------
-    >>> df = pl.DataFrame(
-    ...     {
-    ...         "Point": ["Parameters: ds=0, gs=1", "1", "2"],
-    ...         "Value": [None, 10, 20],
-    ...     }
+    >>> (
+    ...     df := pl.DataFrame(
+    ...         {
+    ...             "Point": ["Parameters: ds=0, gs=1", "1", "2"],
+    ...             "Value": [None, 10, 20],
+    ...         }
+    ...     )
     ... )
+    shape: (3, 2)
+    ┌────────────────────────┬───────┐
+    │ Point                  ┆ Value │
+    │ ---                    ┆ ---   │
+    │ str                    ┆ i64   │
+    ╞════════════════════════╪═══════╡
+    │ Parameters: ds=0, gs=1 ┆ null  │
+    │ 1                      ┆ 10    │
+    │ 2                      ┆ 20    │
+    └────────────────────────┴───────┘
     >>> explode_nested_params(df, keys=["ds", "gs"])
     shape: (2, 4)
     ┌───────┬───────┬─────┬─────┐
