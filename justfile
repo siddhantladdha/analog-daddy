@@ -20,14 +20,6 @@ marimo notebook="src/analog_daddy/drafts.py":
 type-check:
     uv run --python={{ python_version }} ty check .
 
-# Type check with concise output (one diagnostic per line)
-type-check-concise:
-    uv run --python={{ python_version }} ty check --output-format=concise .
-
-# Type check in watch mode (rechecks on file changes)
-type-check-watch:
-    uv run --python={{ python_version }} ty check --watch .
-
 # Run all the formatting, linting, and testing commands
 qa: (qa-path ".")
 
@@ -36,8 +28,8 @@ qa-path path:
     uv run --python={{ python_version }} ruff check --fix {{ path }}
     uv run --python={{ python_version }} ruff format {{ path }}
     uv run --python={{ python_version }} format-docstring {{ path }}
-    uv run --python={{ python_version }} pydoclint {{ path }}
-    uv run --python={{ python_version }} ty check --output-format=concise {{ path }}
+    uv run --python={{ python_version }} --isolated --only-group lint pydoclint {{ path }}
+    uv run --python={{ python_version }} ty check {{ path }}
     uv run --python={{ python_version }} pytest {{ path }}
 
 # Run all the tests for all the supported Python versions
