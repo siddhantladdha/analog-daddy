@@ -22,7 +22,7 @@ def main() -> None:
     name = pyproject["project"]["name"]
     version = pyproject["project"]["version"]
     tag = f"v{version}"
-    notes_path = Path(f"CHANGELOG/{version}.md")
+    notes_path = Path(f"CHANGELOG/v{version}.md")
 
     lines = notes_path.read_text().splitlines(keepends=True)
     if lines and lines[0].startswith("# "):
