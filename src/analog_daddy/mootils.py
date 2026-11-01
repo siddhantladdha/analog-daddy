@@ -14,6 +14,7 @@ import marimo as mo
 import polars as pl
 import polars.selectors as cs
 from rich.console import Console, RenderableType
+from wigglystuff import CopyToClipboard
 
 from analog_daddy.utils import render
 
@@ -121,3 +122,35 @@ def rich_md(
     console = Console(file=capture, **console_kwargs)
     console.print(*renderables, **print_kwargs)
     return mo.Html(console.export_html(**export_html_kwargs))
+
+
+def df_repr_docstr_clip(
+    df: pl.DataFrame, max_rows: int = 3
+) -> CopyToClipboard:
+    """
+    Copy the repr of a polars DataFrame to the clipboard.
+
+    Parameters
+    ----------
+    df : pl.DataFrame
+        The DataFrame to copy the repr of.
+    max_rows : int, default=3
+        The maximum number of rows to include in the repr.
+
+    Returns
+    -------
+    CopyToClipboard
+        A CopyToClipboard object containing the repr of the DataFrame.
+
+    Examples
+    --------
+    >>> a = pl.DataFrame(
+    ...     {"x": [9.0, 11.0], "foo": [10.0, 10.0], "bar": [5.0, 5.0]},
+    ... )
+    >>> df_repr_docstr_clip(a).text_to_copy.startswith("shape: (2, 3)")
+    True
+    """
+
+    return CopyToClipboard(
+        text_to_copy=df.slice(offset=0, length=max_rows).__repr__(),
+    )
