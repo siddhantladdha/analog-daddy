@@ -440,7 +440,51 @@ def spec(
     raise ValueError(f"bad spec: {spec}")
 
 
-def list_cast():
+def list_cast() -> tuple[pl.Expr, pl.Expr]:
+    """
+    Cast list columns to list[str]
+
+    Uses ``render`` to convert numeric values and casts categorical
+    values to string.
+
+    Returns
+    -------
+    tuple[pl.Expr, pl.Expr]
+
+    Examples
+    --------
+    >>> (
+    ...     df := pl.DataFrame(
+    ...         {"a": [[1000, 2.5e-6]], "b": [["x", "y"]]},
+    ...         schema={
+    ...             "a": pl.List(pl.Float64),
+    ...             "b": pl.List(pl.Categorical),
+    ...         },
+    ...     )
+    ... )
+    shape: (1, 2)
+    ┌─────────────────────┬────────────┐
+    │ a                   ┆ b          │
+    │ ---                 ┆ ---        │
+    │ list[f64]           ┆ list[cat]  │
+    ╞═════════════════════╪════════════╡
+    │ [1000.0, 0.0000025] ┆ ["x", "y"] │
+    └─────────────────────┴────────────┘
+    >>> out = df.with_columns(*list_cast())
+    >>> out
+    shape: (1, 2)
+    ┌────────────────┬────────────┐
+    │ a              ┆ b          │
+    │ ---            ┆ ---        │
+    │ list[str]      ┆ list[str]  │
+    ╞════════════════╪════════════╡
+    │ ["1k", "2.5u"] ┆ ["x", "y"] │
+    └────────────────┴────────────┘
+    >>> out.schema.contains_dtype(pl.String, recursive=True)
+    True
+    >>> out.schema.contains_dtype(pl.Categorical, recursive=True)
+    False
+    """
     return (
         cs.list(cs.numeric()).list.eval(
             pl.element().map_elements(
@@ -452,7 +496,42 @@ def list_cast():
     )
 
 
-def list_render_unique(max_len: int = 3):
+def list_render_unique(max_len: int = 3) -> pl.Expr:
+    """
+    Render unique values of list[str] columns as a comma-joined string.
+
+    Lists with more than ``max_len`` unique values are truncated and
+    suffixed with the count of omitted values. The ordering is not
+    deterministic since ``pl.Expr.unique`` doesn't maintain order.
+
+    Parameters
+    ----------
+    max_len : int, default=3
+        Maximum number of unique values to show before truncating.
+
+    Returns
+    -------
+    pl.Expr
+        Expression (over all list[str] columns) yielding a string.
+
+    Examples
+    --------
+    >>> (df := pl.DataFrame({"a": [["x", "x"], ["a", "b", "c", "d", "e"]]}))
+    shape: (2, 1)
+    ┌───────────────────┐
+    │ a                 │
+    │ ---               │
+    │ list[str]         │
+    ╞═══════════════════╡
+    │ ["x", "x"]        │
+    │ ["a", "b", … "e"] │
+    └───────────────────┘
+    >>> out = df.select(list_render_unique(max_len=3))["a"].to_list()
+    >>> out[0]
+    'x'
+    >>> out[1].endswith(" + 2 more")
+    True
+    """
     ulist = cs.list(cs.string()).list.unique().list
     n = ulist.len()
     head_n = ulist.head(max_len).list
