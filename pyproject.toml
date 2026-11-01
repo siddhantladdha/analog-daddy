@@ -1,0 +1,159 @@
+[project]
+name = "analog-daddy"
+version = "3.0.1.dev1"
+description = "This library is an attempt to make transistor sizing for Analog Design less painful. Additionally, provides helper utilities to minimize churn and errors in repetative tasks."
+readme = "README.md"
+requires-python = ">= 3.12"
+license = "MIT"
+authors = [
+  { name = "Siddhant Laddha", email = "25705822+siddhantladdha@users.noreply.github.com" }
+]
+maintainers = [
+  { name = "Siddhant Laddha", email = "25705822+siddhantladdha@users.noreply.github.com" }
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Education",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+  "Typing :: Typed",
+]
+dependencies = [
+  "boltons",
+  "cyclopts; sys_platform != 'emscripten'",
+  "great-tables",
+  "plotly",
+  "polars",
+  "pydantic>=2",
+  "pydantic-settings",
+  "quantiphy",
+  "rich",
+  "scipy",
+  "xarray",
+]
+
+[project.urls]
+bugs = "https://github.com/siddhantladdha/analog_daddy/issues"
+changelog = "https://github.com/siddhantladdha/analog_daddy/releases"
+documentation = "https://siddhantladdha.github.io/analog_daddy/"
+homepage = "https://github.com/siddhantladdha/analog_daddy"
+
+[project.scripts]
+analog_daddy = "analog_daddy.cli:app"
+
+[dependency-groups]
+dev = [
+  "format-docstring",
+  "pydoclint",
+  "pytest",
+  "ruff",
+  "ty",
+]
+all = [
+  { include-group = "dev" },
+  { include-group = "docs" },
+  { include-group = "notebooks" },
+]
+docs = [
+  "mkdocstrings-python",
+  "nbconvert",  # marimo pdf exports.
+  "playwright",  # marimo pdf exports.
+  "zensical",
+  # TODO: evaluate vs great-docs for marimo notebooks in docs.
+]
+notebooks = [
+  "marimo[lsp,mcp,recommended]",
+  "ptpython",  # interactive REPL
+  "wigglystuff",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
+
+[tool.format_docstring]
+docstring_style = "numpy"
+line_length = 72
+include_arg_types = true
+include_arg_defaults = true
+fix_rst_backticks = true
+exclude = "\\.git|\\.venv|__pycache__|.*drafts.*\\.py"
+
+[tool.pydoclint]
+# issue #313 currently needs # noqa: DOC105
+style = "numpy"
+arg-type-hints-in-docstring = true
+arg-type-hints-in-signature = true
+check-return-types = true
+check-arg-defaults = true
+check-style-mismatch = true
+show-filenames-in-every-violation-message = true
+exclude = '\.git|\.tox|\.venv|build|dist|.*drafts.*\.py'
+
+[tool.pytest.ini_options]
+addopts = ["--doctest-modules", "--ignore-glob=*drafts*.py"]
+doctest_optionflags = ["IGNORE_EXCEPTION_DETAIL"]
+testpaths = ["src", "tests"]
+
+[tool.ruff]
+line-length = 79
+extend-exclude = ["*drafts*.py"]
+output-prefer-rule-codes = true
+
+[tool.ruff.lint]
+ignore = [
+  # "DOC",  # pydoclint is already handling docstring issues.
+  # "F401",  # F401: module imported but unused
+  # "D100",  # Missing docstring in public module"
+  # "D103",  # undocumented-public-method
+  "D105",  # undocumented-magic-method
+  "D401",  # non-imperative-mood
+]
+extend-select = [
+  "NPY",  # numpy
+  # "D",  # docstring # handled by format-docstring and pydoclint
+  "N",  # pep8-naming
+  "PTH",  # flake8-use-pathlib
+  "SIM",  # flake8-simplify
+  "EXE",  # flake8-executable
+  "FURB110",
+  "FURB116",
+  "FURB167",
+  "FURB177",
+  "B903",
+  "TRY300",
+  "LOG004",
+  "LOG007",
+  "UP042",
+  "PERF403",
+  "PERF401",
+  #############
+  # Preview rules
+  "FURB113",
+  "FURB152",
+  "FURB156",
+  #############
+  #############
+  # Enable the following when working on spaghetti and old code.
+  # "FURB",
+  # "UP",
+  #############
+]
+# There are certain `preview`/beta rules that I am selectively enabling.
+preview = true
+explicit-preview-rules = true
+external = ["DOC105"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ty]
+[tool.ty.src]
+exclude = ["**/*drafts*.py"]
+
+[tool.uv]
+default-groups = ["all"]
+required-version = ">=0.13.0,<0.14"

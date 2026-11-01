@@ -153,4 +153,4 @@ uv run pytest tests/
 ## Licensing
 
 By submitting a contribution, you agree it will be licensed under the project's
-license (see [LICENSE](./LICENSE.md)).
+license (see [LICENSE](LICENSE)).

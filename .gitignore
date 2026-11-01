@@ -52,5 +52,4 @@ site/
 # IDE files
 # .idea/
 # .vscode/
-drafts.py
-notebook.py
+*drafts*.py
