@@ -93,3 +93,15 @@ clean-test:
 publish:
     uv build
     uv publish
+
+# just version-bump [dev|patch|minor|major]
+version-bump bump="dev":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    uv version --bump {{ bump }}
+    tag="v$(uv version --short)"
+    git add pyproject.toml uv.lock
+    git commit --message "Release $tag"
+    git tag --annotate "$tag" --message "Release $tag"
+    git push origin HEAD
+    git push origin "$tag"
