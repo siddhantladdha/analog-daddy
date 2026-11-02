@@ -40,7 +40,7 @@ wheels = [
 
 [[package]]
 name = "analog-daddy"
-version = "3.0.1.dev1"
+version = "3.0.1.dev2"
 source = { editable = "." }
 default-groups = ["all"]
 dependencies = [
